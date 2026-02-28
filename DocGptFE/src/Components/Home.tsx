@@ -1,20 +1,17 @@
 import Header from "./Header/Header"
-import { useGetSecureHelloQuery } from "../Redux/Api/RootApi";
-import { useEffect } from "react";
+import Upload from "./UploadSection/Upload";
+import "./Home.css";
 
 const Home = () => {
 
-    const {data, error, isLoading} = useGetSecureHelloQuery();
-
-    useEffect(() => {
-        if(!isLoading && !error) {
-            console.log("API Response:", data);
-        }
-    }, [isLoading, error, data]);
-
     return (
+      <div className="wrapper">
         <Header></Header>
-    )
+        <div>
+            <Upload/>
+        </div>
+      </div>
+    );
 }
 
 export default Home;
