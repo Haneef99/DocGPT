@@ -29,8 +29,15 @@ export const apiSlice = createApi({
     getSecureHello: builder.query<any, void>({
       query: () => 'my-profile', 
     }),
+    uploadDocument: builder.mutation<any, FormData>({
+      query: (formData) => ({
+        url: 'upload',
+        method: 'POST',
+        body: formData,
+      }),
+    }),
   }),
 
 });
 
-export const { useGetSecureHelloQuery } = apiSlice;
+export const { useGetSecureHelloQuery, useUploadDocumentMutation } = apiSlice;

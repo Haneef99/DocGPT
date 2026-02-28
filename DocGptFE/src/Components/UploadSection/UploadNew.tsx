@@ -1,6 +1,10 @@
+import { useState } from "react";
 import Button from "@mui/joy/Button";
 import SvgIcon from "@mui/joy/SvgIcon";
+import CircularProgress from "@mui/joy/CircularProgress";
+import Typography from "@mui/joy/Typography";
 import { styled } from "@mui/joy";
+import { useUploadDocumentMutation } from "../../Redux/Api/RootApi";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -15,34 +19,86 @@ const VisuallyHiddenInput = styled("input")`
 `;
 
 const UploadNew = () => {
+  const [uploadDocument, { isLoading }] = useUploadDocumentMutation();
+  const [statusMessage, setStatusMessage] = useState("");
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    
+    if (!file) return;
+
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      setStatusMessage("File is too large. Max size is 5MB.");
+      event.target.value = "";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setStatusMessage("");
+      
+      await uploadDocument(formData).unwrap();
+      
+      setStatusMessage(`Successfully uploaded: ${file.name}`);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setStatusMessage("Upload failed. Please try again.");
+      console.log(file.name, file.size);
+    } finally {
+      event.target.value = "";
+    }
+  };
+
   return (
-    <Button
-      component="label"
-      role={undefined}
-      tabIndex={-1}
-      variant="soft"
-      color="neutral"
-      startDecorator={
-        <SvgIcon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-            />
-          </svg>
-        </SvgIcon>
-      }
-    >
-      Upload a file
-      <VisuallyHiddenInput type="file" />
-    </Button>
+    <div>
+      <Button
+        component="label"
+        role={undefined}
+        tabIndex={-1}
+        variant="soft"
+        color="neutral"
+        disabled={isLoading}
+        sx={{ width: '100%' }}
+        startDecorator={
+          isLoading ? (
+            <CircularProgress size="sm" color="neutral" />
+          ) : (
+            <SvgIcon>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
+                />
+              </svg>
+            </SvgIcon>
+          )
+        }
+      >
+        {isLoading ? "Uploading..." : "Upload a file"}
+        
+        <VisuallyHiddenInput 
+          type="file" 
+          accept=".pdf,.doc,.docx"
+          onChange={handleFileChange} 
+        />
+      </Button>
+
+      {statusMessage && (
+        <Typography level="body-sm" color={statusMessage.includes("failed") || statusMessage.includes("large") ? "danger" : "success"}>
+          {statusMessage}
+        </Typography>
+      )}
+    </div>
   );
 };
 
