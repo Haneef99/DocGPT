@@ -26,8 +26,8 @@ export const apiSlice = createApi({
   }),
   
   endpoints: (builder) => ({
-    getSecureHello: builder.query<{ message: string }, void>({
-      query: () => 'secure-hello', 
+    getSecureHello: builder.query<any, void>({
+      query: () => 'my-profile', 
     }),
   }),
 

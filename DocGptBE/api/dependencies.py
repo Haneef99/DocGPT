@@ -17,8 +17,10 @@ def verify_clerk_token(credentials: HTTPAuthorizationCredentials = Security(secu
             signing_key.key,
             algorithms=["RS256"],
             issuer=settings.CLERK_ISSUER,
-            options={"verify_signature": True, "verify_exp": True}
+            options={"verify_signature": True, "verify_exp": True},
+            leeway=10
         )
         return payload
     except Exception as e:
+        print(f"JWT Verification Failed: {type(e).__name__} - {str(e)}") 
         raise HTTPException(status_code=403, detail="Forbidden request")
