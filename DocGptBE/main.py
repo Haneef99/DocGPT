@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from core.database import get_db
+from sqlalchemy.orm import Session
+from fastapi import Depends
 from api.routes import test
 
 app = FastAPI()
@@ -19,5 +22,5 @@ app.add_middleware(
 app.include_router(test.router, prefix="/api", tags=["Secure Endpoints"])
 
 @app.get("/")
-def health_check():
+def health_check(db: Session = Depends(get_db)):
     return {"status": "ok"}
