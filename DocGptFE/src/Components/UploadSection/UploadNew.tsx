@@ -40,8 +40,8 @@ const UploadNew = () => {
     try {
       setStatusMessage("");
       
-      await uploadDocument(formData).unwrap();
-      
+      const result = await uploadDocument(formData).unwrap();
+      console.log(result);
       setStatusMessage(`Successfully uploaded: ${file.name}`);
     } catch (error) {
       console.error("Upload failed:", error);
