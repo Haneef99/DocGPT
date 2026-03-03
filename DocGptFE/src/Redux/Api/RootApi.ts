@@ -1,5 +1,14 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+export interface DocumentItem {
+  id: string;
+  filename: string;
+}
+
+export interface UploadResponse {
+  documents: DocumentItem[];
+}
+
 declare global {
   interface Window {
     Clerk: any;
@@ -29,15 +38,18 @@ export const apiSlice = createApi({
     getSecureHello: builder.query<any, void>({
       query: () => 'my-profile', 
     }),
-    uploadDocument: builder.mutation<any, FormData>({
+    uploadDocument: builder.mutation<UploadResponse, FormData>({
       query: (formData) => ({
         url: 'upload',
         method: 'POST',
         body: formData,
       }),
     }),
+    getAllDocuments: builder.query<UploadResponse, void>({
+      query: () => 'my-documents',
+    }),
   }),
 
 });
 
-export const { useGetSecureHelloQuery, useUploadDocumentMutation } = apiSlice;
+export const { useGetSecureHelloQuery, useUploadDocumentMutation, useGetAllDocumentsQuery } = apiSlice;
