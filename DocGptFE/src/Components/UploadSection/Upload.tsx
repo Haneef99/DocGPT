@@ -11,7 +11,7 @@ const Upload = () => {
           orientation="vertical"
           size="lg"
           variant="soft"
-          sx={{ width: "400px", height: "400px"}}
+          sx={{ width: "100%", height: "400px"}}
         >
           <Typography
             color="neutral"

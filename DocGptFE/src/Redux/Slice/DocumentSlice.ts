@@ -4,10 +4,12 @@ import { type DocumentItem } from "../Api/RootApi";
 
 interface DocumentState {
     documents: DocumentItem[];
+    currentSelectedDocument: DocumentItem | null;
 }
 
 const initialState: DocumentState = {
     documents: [],
+    currentSelectedDocument: null,
 };
 
 export const documentSlice = createSlice({
@@ -17,6 +19,9 @@ export const documentSlice = createSlice({
     setDocuments: (state, action: PayloadAction<DocumentItem[]>) => {
       state.documents = action.payload;
     },
+    setCurrentSelectedDocument: (state, action: PayloadAction<DocumentItem | null>) => {
+      state.currentSelectedDocument = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -34,11 +39,12 @@ export const documentSlice = createSlice({
   },
   selectors: {
     selectDocuments: (state) => state.documents,
+    selectCurrentSelectedDocument: (state) => state.currentSelectedDocument
   }
 });
 
-export const { setDocuments } = documentSlice.actions;
+export const { setDocuments, setCurrentSelectedDocument } = documentSlice.actions;
 
-export const selectDocuments = documentSlice.selectors.selectDocuments;
+export const {selectDocuments, selectCurrentSelectedDocument} = documentSlice.selectors;
 
 export default documentSlice.reducer;

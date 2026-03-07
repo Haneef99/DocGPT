@@ -1,12 +1,17 @@
 import Header from "./Header/Header"
 import Upload from "./UploadSection/Upload";
 import "./Home.css";
-import { useGetAllDocumentsQuery } from "../Redux/Api/RootApi";
+import { useGetAllDocumentsQuery, type DocumentItem } from "../Redux/Api/RootApi";
 import Box from '@mui/joy/Box';
 import CircularProgress from '@mui/joy/CircularProgress';
+import ChatWindow from "./Chat/ChatWindow";
+import EmptyDocumentState from "./Chat/EmptyDocumentState";
+import { useAppSelector } from "../Redux/Store";
+import { selectCurrentSelectedDocument } from "../Redux/Slice/DocumentSlice";
 
 const Home = () => {
   const { error, isLoading } = useGetAllDocumentsQuery();
+  const currentDocument: DocumentItem | null = useAppSelector(selectCurrentSelectedDocument);
 
   if (isLoading) {
     return (
@@ -36,8 +41,15 @@ const Home = () => {
   return (
     <div className="wrapper">
       <Header />
-      <div>
+      <div className="doc-content">
         <Upload />
+        {
+          currentDocument 
+          ?
+          <ChatWindow document={currentDocument}/>
+          :
+          <EmptyDocumentState />
+        }
       </div>
     </div>
   );
