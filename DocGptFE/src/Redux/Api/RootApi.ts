@@ -9,6 +9,23 @@ export interface UploadResponse {
   documents: DocumentItem[];
 }
 
+export interface SearchQueryRequest {
+  query: string;
+  top_k?: number;
+}
+
+export interface SearchResultItem {
+  document_id: string;
+  filename: string;
+  content: string;
+  similarity_score: number;
+}
+
+export interface SearchQueryResponse {
+  query: string;
+  results: SearchResultItem[];
+}
+
 declare global {
   interface Window {
     Clerk: any;
@@ -38,6 +55,7 @@ export const apiSlice = createApi({
     getSecureHello: builder.query<any, void>({
       query: () => 'my-profile', 
     }),
+    
     uploadDocument: builder.mutation<UploadResponse, FormData>({
       query: (formData) => ({
         url: 'upload',
@@ -45,11 +63,24 @@ export const apiSlice = createApi({
         body: formData,
       }),
     }),
+    
     getAllDocuments: builder.query<UploadResponse, void>({
       query: () => 'my-documents',
     }),
-  }),
 
+    searchDocuments: builder.mutation<SearchQueryResponse, SearchQueryRequest>({
+      query: (searchPayload) => ({
+        url: 'search',
+        method: 'POST',
+        body: searchPayload,
+      }),
+    }),
+  }),
 });
 
-export const { useGetSecureHelloQuery, useUploadDocumentMutation, useGetAllDocumentsQuery } = apiSlice;
+export const { 
+  useGetSecureHelloQuery, 
+  useUploadDocumentMutation, 
+  useGetAllDocumentsQuery,
+  useSearchDocumentsMutation
+} = apiSlice;

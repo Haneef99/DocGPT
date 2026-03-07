@@ -32,10 +32,13 @@ export const documentSlice = createSlice({
       }
     );
   },
+  selectors: {
+    selectDocuments: (state) => state.documents,
+  }
 });
 
 export const { setDocuments } = documentSlice.actions;
 
-export const selectDocuments = (state: { document: DocumentState }) => state.document.documents;
+export const selectDocuments = documentSlice.selectors.selectDocuments;
 
 export default documentSlice.reducer;

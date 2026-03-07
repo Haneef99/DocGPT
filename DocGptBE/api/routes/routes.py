@@ -1,7 +1,9 @@
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 from fastapi import APIRouter, Depends
 from api.dependencies import verify_clerk_token
 from pydantic import BaseModel
-import os
 import tempfile
 import shutil
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -68,20 +70,16 @@ def upload_document(
             shutil.copyfileobj(file.file, temp_file)
             temp_file_path = temp_file.name
 
-        # 2. Parse Document with Docling
         converter = DocumentConverter()
         result = converter.convert(temp_file_path)
 
-        # 3. Chunk the document 
         chunker = HierarchicalChunker()
         chunk_iter = chunker.chunk(result.document)
         
-        # 4. Vectorize and save chunks
         db_vectors = []
         for chunk in chunk_iter:
             text_content = chunk.text
             
-            # Skip empty chunks
             if not text_content.strip():
                 continue
                 
@@ -95,7 +93,6 @@ def upload_document(
                 )
             )
             
-        # Bulk save for better performance
         if db_vectors:
             db.bulk_save_objects(db_vectors)
             db.commit()
@@ -126,29 +123,27 @@ def search_documents(
     """
     user_id = profile.get("sub")
     
-    # 1. Vectorize the user's question
     query_vector = embedding_model.encode(search_query.query).tolist()
     
-    # 2. Perform semantic search using pgvector's cosine distance
-    # We join with the Document table to ensure the user can only search their own files
+    distance_calc = DocumentVector.embedding.cosine_distance(query_vector).label("distance")
+    
     results = (
-        db.query(DocumentVector, Document)
+        db.query(DocumentVector, Document, distance_calc)
         .join(Document, DocumentVector.document_id == Document.id)
         .filter(Document.user_id == user_id)
-        .order_by(DocumentVector.embedding.cosine_distance(query_vector))
+        .order_by(distance_calc)
         .limit(search_query.top_k)
         .all()
     )
     
-    # 3. Format the output
     formatted_results = []
-    for vec, doc in results:
+    
+    for vec, doc, distance in results:
         formatted_results.append({
             "document_id": doc.id,
             "filename": doc.filename,
             "content": vec.content,
-            # Cosine distance to similarity score conversion
-            "similarity_score": round(1 - vec.embedding.cosine_distance(query_vector), 4) 
+            "similarity_score": round(1 - distance, 4) 
         })
         
     return {"query": search_query.query, "results": formatted_results}
