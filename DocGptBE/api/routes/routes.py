@@ -14,14 +14,20 @@ from models.document import Document
 from models.document_vectors import DocumentVector
 from sentence_transformers import SentenceTransformer
 from docling.chunking import HierarchicalChunker
+from google import genai
+from api.prompt import RAG_PROMPT_TEMPLATE
+from core.config import settings
 
 
 router = APIRouter(dependencies=[Depends(verify_clerk_token)])
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
+client = genai.Client(api_key=settings.gemini_api_key)
+
 class SearchQuery(BaseModel):
     query: str
     top_k: int = 2
+    document_id: str
 
 @router.get("/secure-hello")
 def secure_say_hello():
@@ -131,12 +137,21 @@ def search_documents(
         db.query(DocumentVector, Document, distance_calc)
         .join(Document, DocumentVector.document_id == Document.id)
         .filter(Document.user_id == user_id)
+        .filter(Document.id == search_query.document_id)
         .order_by(distance_calc)
         .limit(search_query.top_k)
         .all()
     )
+
+    if not results:
+        return {
+            "query": search_query.query,
+            "answer": "No relevant documents found to answer your query.",
+            "sources": []
+        }
     
     formatted_results = []
+    context_texts = []
     
     for vec, doc, distance in results:
         formatted_results.append({
@@ -145,5 +160,27 @@ def search_documents(
             "content": vec.content,
             "similarity_score": round(1 - distance, 4) 
         })
+
+        context_texts.append(vec.content.strip())
+
+    combined_context = "\n\n---\n\n".join(context_texts)
+
+    final_prompt = RAG_PROMPT_TEMPLATE.format(
+        context=combined_context, 
+        query=search_query.query
+    )
+
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=final_prompt
+        )
+        ai_answer = response.text
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error communicating with Gemini API: {str(e)}")
         
-    return {"query": search_query.query, "results": formatted_results}
+    return {
+        "query": search_query.query, 
+        "answer": ai_answer,
+        "sources": formatted_results 
+    }

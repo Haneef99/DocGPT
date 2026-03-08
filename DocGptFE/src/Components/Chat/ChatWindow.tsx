@@ -39,10 +39,11 @@ const ChatWindow = ({ document }: { document: DocumentItem }) => {
       const result = await searchDocument({
         query: inputValue,
         top_k: 4,
+        document_id: document.id
       }).unwrap();
       const content = {
         id: Date.now() + 1,
-        text: result.results[0].content,
+        text: result.answer,
         sender: "api",
       };
       setMessages((prev) => [...prev, content]);

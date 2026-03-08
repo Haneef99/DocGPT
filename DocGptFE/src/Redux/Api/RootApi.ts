@@ -12,6 +12,7 @@ export interface UploadResponse {
 export interface SearchQueryRequest {
   query: string;
   top_k?: number;
+  document_id: string;
 }
 
 export interface SearchResultItem {
@@ -23,7 +24,8 @@ export interface SearchResultItem {
 
 export interface SearchQueryResponse {
   query: string;
-  results: SearchResultItem[];
+  answer: string;
+  sources: SearchResultItem[];
 }
 
 declare global {
