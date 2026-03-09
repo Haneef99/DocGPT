@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export interface DocumentItem {
   id: string;
   filename: string;
+  uploaded_date: string;
 }
 
 export interface UploadResponse {

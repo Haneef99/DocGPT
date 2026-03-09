@@ -5,6 +5,7 @@ import CircularProgress from "@mui/joy/CircularProgress";
 import Typography from "@mui/joy/Typography";
 import { styled } from "@mui/joy";
 import { useUploadDocumentMutation } from "../../Redux/Api/RootApi";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -27,7 +28,7 @@ const UploadNew = () => {
     
     if (!file) return;
 
-    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    const MAX_FILE_SIZE = 2 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
       setStatusMessage("File is too large. Max size is 5MB.");
       event.target.value = "";
@@ -61,7 +62,7 @@ const UploadNew = () => {
         variant="soft"
         color="neutral"
         disabled={isLoading}
-        sx={{ width: '100%' }}
+        sx={{ width: "100%" }}
         startDecorator={
           isLoading ? (
             <CircularProgress size="sm" color="neutral" />
@@ -85,19 +86,41 @@ const UploadNew = () => {
         }
       >
         {isLoading ? "Uploading..." : "Upload a file"}
-        
-        <VisuallyHiddenInput 
-          type="file" 
+
+        <VisuallyHiddenInput
+          type="file"
           accept=".pdf,.doc,.docx"
-          onChange={handleFileChange} 
+          onChange={handleFileChange}
         />
       </Button>
 
       {statusMessage && (
-        <Typography level="body-sm" color={statusMessage.includes("failed") || statusMessage.includes("large") ? "danger" : "success"}>
+        <Typography
+          level="body-sm"
+          color={
+            statusMessage.includes("failed") || statusMessage.includes("large")
+              ? "danger"
+              : "success"
+          }
+        >
           {statusMessage}
         </Typography>
       )}
+      <Typography
+        level="body-xs"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center", // Centers it under the button
+          gap: 0.5,
+          marginTop: 1.5,
+          color: "rgba(0, 0, 0, 0.45)", // Muted, transparent white for glassmorphism
+          fontWeight: "md",
+        }}
+      >
+        <InfoOutlinedIcon sx={{ fontSize: "1rem", opacity: 0.8 }} />
+        Supported formats: PDF, DOC, DOCX (Max 2MB)
+      </Typography>
     </div>
   );
 };

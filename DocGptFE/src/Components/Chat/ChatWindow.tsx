@@ -7,22 +7,30 @@ import {
   Button,
   CircularProgress,
 } from "@mui/joy";
-import type { DocumentItem } from "../../Redux/Api/RootApi";
 import { useSearchDocumentsMutation } from "../../Redux/Api/RootApi";
+import { useAppSelector } from "../../Redux/Store";
+import { selectCurrentSelectedDocument } from "../../Redux/Slice/DocumentSlice";
 
-const ChatWindow = ({ document }: { document: DocumentItem }) => {
+const ChatWindow = () => {
+  const document = useAppSelector(selectCurrentSelectedDocument);
   const [inputValue, setInputValue] = useState("");
-  // 1. Extract isLoading from the mutation hook
   const [searchDocument, { isLoading }] = useSearchDocumentsMutation();
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: `Welcome. This assistant answers questions using information from ${document.filename}. Please enter your query to begin.`,
-      sender: "api",
-    },
-  ]);
+  const [messages, setMessages] = useState<any[]>([]);
 
-  // Optional: Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (document) {
+      setMessages([
+        {
+          id: Date.now(),
+          text: `Hi there! 👋 I've got ${document.filename} loaded and ready. You can ask me to summarize key points, find specific details, or explain complex concepts. What would you like to know?`,
+          sender: "api",
+        },
+      ]);
+    } else {
+      setMessages([]);
+    }
+  }, [document]);
+
   const chatEndRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,7 +47,7 @@ const ChatWindow = ({ document }: { document: DocumentItem }) => {
       const result = await searchDocument({
         query: inputValue,
         top_k: 4,
-        document_id: document.id
+        document_id: document?.id ?? "1"
       }).unwrap();
       const content = {
         id: Date.now() + 1,
@@ -162,7 +170,7 @@ const ChatWindow = ({ document }: { document: DocumentItem }) => {
         <Input
           variant="outlined"
           fullWidth
-          placeholder="Type your message..."
+          placeholder="Ask me anything about this document... "
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}

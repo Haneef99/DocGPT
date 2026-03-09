@@ -8,6 +8,7 @@ import ChatWindow from "./Chat/ChatWindow";
 import EmptyDocumentState from "./Chat/EmptyDocumentState";
 import { useAppSelector } from "../Redux/Store";
 import { selectCurrentSelectedDocument } from "../Redux/Slice/DocumentSlice";
+import SupportFooter from "./Footer/SupportFooter";
 
 const Home = () => {
   const { error, isLoading } = useGetAllDocumentsQuery();
@@ -46,11 +47,12 @@ const Home = () => {
         {
           currentDocument 
           ?
-          <ChatWindow document={currentDocument}/>
+          <ChatWindow/>
           :
           <EmptyDocumentState />
         }
       </div>
+      <SupportFooter/>
     </div>
   );
 }

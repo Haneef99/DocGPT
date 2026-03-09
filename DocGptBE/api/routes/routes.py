@@ -44,7 +44,7 @@ def get_documents(
 ):
     user_id = profile.get("sub")
     documents = db.query(Document).filter(Document.user_id == user_id).all()
-    return {"documents": [{"id": doc.id, "filename": doc.filename} for doc in documents]}
+    return {"documents": [{"id": doc.id, "filename": doc.filename, "uploaded_date": doc.uploaded_at} for doc in documents]}
 
 @router.post("/upload")
 def upload_document(
@@ -105,7 +105,7 @@ def upload_document(
 
         documents = db.query(Document).filter(Document.user_id == user_id).all()
         return {
-            "documents": [{"id": doc.id, "filename": doc.filename} for doc in documents]
+            "documents": [{"id": doc.id, "filename": doc.filename, "uploaded_date": doc.uploaded_at} for doc in documents]
         }
 
     except Exception as e:
