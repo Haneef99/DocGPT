@@ -9,6 +9,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
+    "https://doc-gpt-ai.vercel.app"
 ]
 
 app.add_middleware(
