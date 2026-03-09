@@ -91,8 +91,7 @@ const ReleaseNotesModal = ({ open, onClose }: any) => {
                 paddingLeft: "10px",
               }}
             >
-              Current deployment is running on free tier, so please expect the
-              performance to be bad.
+              Current deployment is running on free tier, so please expect the app to be slow.
             </Typography>
           </Typography>
 
