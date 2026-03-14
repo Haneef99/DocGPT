@@ -30,7 +30,7 @@ const UploadNew = () => {
 
     const MAX_FILE_SIZE = 2 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
-      setStatusMessage("File is too large. Max size is 5MB.");
+      setStatusMessage("File is too large. Max size is 2MB.");
       event.target.value = "";
       return;
     }

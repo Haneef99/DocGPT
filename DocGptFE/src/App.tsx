@@ -19,7 +19,12 @@ function App() {
             <Route
               path="/login"
               element={
-                <>
+                <div style={{
+                  height: '100vh',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
                   <SignedOut>
                     <SignIn
                       routing="path"
@@ -31,7 +36,7 @@ function App() {
                   <SignedIn>
                     <Navigate to="/home" replace />
                   </SignedIn>
-                </>
+                </div>
               }
             />
 
